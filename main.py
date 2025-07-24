@@ -26,7 +26,8 @@ from handlers import (
     fakeAddress3_handler,
     userinfo_handler,
     yt_handler,
-    spam_handler
+    spam_handler,
+    iban_handler
 )
 
 BOT_TOKEN = "🍒"
@@ -91,6 +92,7 @@ register_handler(fakeAddress3_handler, "Fake Address3")
 register_handler(userinfo_handler, "User Info")
 register_handler(yt_handler, "yt")
 register_handler(spam_handler, "spam")
+register_handler(iban_handler, "iban")
 
 
 print("-" * 40)
