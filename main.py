@@ -29,7 +29,7 @@ from handlers import (
     spam_handler
 )
 
-BOT_TOKEN = "8025427449:AAGL41Rf9IiuW-H3YhxB4ekToo5SS9n1vrQ"
+BOT_TOKEN = "🍒"
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 COMMAND_PREFIXES = list(string.punctuation)
