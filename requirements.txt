@@ -1,16 +1,16 @@
 
-pyTelegramBotAPI==4.15.1
-aiohttp==3.9.3
-flask==2.3.3
+pyTelegramBotAPI
+aiohttp
+flask
 google-generativeai
-python-telegram-bot==20.0
+python-telegram-bot
 requests
 aiofiles
 gtts
 langdetect
 yt-dlp
-pyrogram==2.0.106
+pyrogram
 tgcrypto
-moviepy==1.0.3
-faker
+moviepy
+FakeXYZ
 Babel
