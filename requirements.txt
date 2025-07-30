@@ -1,4 +1,3 @@
-
 pyTelegramBotAPI
 aiohttp
 flask
@@ -14,3 +13,4 @@ tgcrypto
 moviepy
 FakeXYZ
 Babel
+pycountry
