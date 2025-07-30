@@ -9,7 +9,6 @@ from handlers.say_handler import register as say_register
 from handlers.translate_handler import register as translate_register
 from handlers.download_handler import register as download_register
 from handlers.gpt_handler import register as gpt_register
-from handlers.converter_handler import register as converter_register
 from handlers.bgremove_handler import register as bgremove_register
 from handlers.fakeAddress_handler import register as fakeAddress_register
 from handlers.fakeAddress2_handler import register as fakeAddress2_register
