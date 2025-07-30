@@ -20,7 +20,6 @@ from handlers import (
     translate_handler,
     download_handler,
     gpt_handler,
-    converter_handler,
     fakeAddress_handler,
     fakeAddress2_handler,
     fakeAddress3_handler,
@@ -83,7 +82,6 @@ register_handler(imagine_handler, "Imagine")
 register_handler(say_handler, "Say")
 register_handler(translate_handler, "Translate")
 register_handler(download_handler, "Download")
-register_handler(converter_handler, "Converter")
 register_handler(bgremove_handler, "BG Remove")
 register_handler(gpt_handler, "GPT")
 register_handler(fakeAddress_handler, "Fake Address")
