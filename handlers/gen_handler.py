@@ -24,7 +24,7 @@ def generate_cards_via_api(bin_input, count, month=None, year=None, cvv=None):
         params["cvv"] = cvv
 
     try:
-        url = "https://cc-gen-api-production.up.railway.app/generate"
+        url = "https://cc-gen-test.vercel.app/generate"
         response = requests.get(url, params=params)
         if response.status_code == 200:
             data = response.json()
@@ -43,11 +43,11 @@ def generate_cards_via_api(bin_input, count, month=None, year=None, cvv=None):
                     "type": bin_info.get("type", "N/A").upper() if bin_info else "N/A",
                     "level": bin_info.get("tier", "N/A").upper() if bin_info else "N/A",
                     "bank": bin_info.get("bank", "N/A") if bin_info else "N/A",
-                    "country": bin_info.get("country", "N/A") if bin_info else "N/A",
+                    "country": bin_info.get("country", "N/A") if bin_info else "",
                     "flag": bin_info.get("flag", "") if bin_info else "",
                 }
             }
-        elif response.status_code == 400: 
+        elif response.status_code == 400:
             error_data = response.json()
             print(f"API Error (400): {error_data.get('message', 'Unknown error')}")
             return {"error": error_data.get("message", "Invalid BIN or parameters.")}
@@ -91,30 +91,30 @@ def extract_bin_from_text(text: str):
         if month and len(month) == 1:
             month = '0' + month
         if year and len(year) == 2:
-            current_year_prefix = 20 if int(year) < 50 else 19 
+            current_year_prefix = 20 if int(year) < 50 else 19
             year = str(current_year_prefix) + year
         if cvv and cvv.lower() == 'rnd':
-            cvv = None 
+            cvv = None
 
-        if bin_part: 
+        if bin_part:
             return bin_part, month, year, cvv
 
     bin_patterns = [
         r'\b(?:BIN|Bin|𝗕𝗶𝗻|💳|B\s?I\s?N)\s*[:]?\s*(\d{6,16}(?:x{0,10}|X{0,10})?)\b',
-        r'\b(\d{15,16}(?:x{0,10}|X{0,10})?)\b', 
-        r'\b(\d{6,10}(?:x{0,10}|X{0,10})?)\s*\|\d{1,2}\|\d{2,4}\b' 
+        r'\b(\d{15,16}(?:x{0,10}|X{0,10})?)\b',
+        r'\b(\d{6,10}(?:x{0,10}|X{0,10})?)\s*\|\d{1,2}\|\d{2,4}\b'
     ]
     for pattern in bin_patterns:
         match = re.search(pattern, text, re.IGNORECASE)
         if match:
             extracted_bin = match.group(1)
-            bin_part = re.match(r'^\d+', extracted_bin).group(0) 
+            bin_part = re.match(r'^\d+', extracted_bin).group(0)
             break
 
     # Month/Year patterns
     month_year_patterns = [
         r'\b(?:Fecha|🗓|𝗙𝗲𝗰𝗵𝗮|Date|Exp|Expiry)\s*[:]?\s*(\d{1,2})[/\s|-](\d{2,4})\b',
-        r'\b(\d{1,2})[/\s|-](\d{2,4})\b' 
+        r'\b(\d{1,2})[/\s|-](\d{2,4})\b'
     ]
     for pattern in month_year_patterns:
         match = re.search(pattern, text, re.IGNORECASE)
@@ -131,7 +131,7 @@ def extract_bin_from_text(text: str):
     # CVV patterns
     cvv_patterns = [
         r'\b(?:CVV|Cvv|𝗖𝘃𝘃)\s*[:]?\s*(\d{3,4}|rnd)\b',
-        r'\b(\d{3,4}|rnd)\b(?=\s*$|\s*[.,;])' 
+        r'\b(\d{3,4}|rnd)\b(?=\s*$|\s*[.,;])'
     ]
     for pattern in cvv_patterns:
         match = re.search(pattern, text, re.IGNORECASE)
@@ -143,8 +143,22 @@ def extract_bin_from_text(text: str):
 
     return bin_part, month, year, cvv
 
+def get_user_identifier(user):
+    """
+    Returns the user's identifier based on a preferred hierarchy:
+    Username > First Name > Last Name > User ID
+    """
+    if user.username:
+        return f"@{user.username}"
+    elif user.first_name:
+        return user.first_name
+    elif user.last_name:
+        return user.last_name
+    else:
+        return str(user.id)
 
-def register(bot, custom_command_handler, command_prefixes_list): 
+
+def register(bot, custom_command_handler, command_prefixes_list):
     @custom_command_handler("gen")
     def handle_gen(message: Message):
         try:
@@ -152,9 +166,9 @@ def register(bot, custom_command_handler, command_prefixes_list):
             month = None
             year = None
             cvv = None
-            count = 10  
+            count = 10
 
-            command_text_full = message.text.split(" ", 1)[0].lower() 
+            command_text_full = message.text.split(" ", 1)[0].lower()
             actual_command_len = 0
             for prefix in command_prefixes_list:
                 if command_text_full.startswith(f"{prefix}gen"):
@@ -171,47 +185,43 @@ def register(bot, custom_command_handler, command_prefixes_list):
                     if full_input_after_command and full_input_after_command.isdigit():
                         count = int(full_input_after_command)
                         count = min(count, 1000)
-                    elif not bin_part:  
-                        bot.reply_to(message, "❌ দুঃখিত! উত্তর দেওয়া মেসেজ থেকে কোনো বৈধ BIN খুঁজে পাওয়া যায়নি।", parse_mode="Markdown") 
+                    elif not bin_part:
+                        bot.reply_to(message, "❌ দুঃখিত! উত্তর দেওয়া মেসেজ থেকে কোনো বৈধ BIN খুঁজে পাওয়া যায়নি।", parse_mode="Markdown")
                         return
                 else:
-                    bot.reply_to(message, "❌ উত্তর দেওয়া মেসেজে কোনো টেক্সট বা ক্যাপশন নেই যা থেকে BIN এক্সট্র্যাক্ট করা যায়।", parse_mode="Markdown") 
+                    bot.reply_to(message, "❌ উত্তর দেওয়া মেসেজে কোনো টেক্সট বা ক্যাপশন নেই যা থেকে BIN এক্সট্র্যাক্ট করা যায়।", parse_mode="Markdown")
                     return
-            else: 
-                if not full_input_after_command: 
-                    bot.reply_to(message, f"❌ BIN অনুপস্থিত। উদাহরণ: `{command_prefixes_list[0]}gen 515462xxxxxx|02|28|573 5` অথবা `{command_prefixes_list[1]}gen 515462xxxxxx|02|28|573 5`", parse_mode="Markdown") 
+            else:
+                if not full_input_after_command:
+                    bot.reply_to(message, f"❌ BIN অনুপস্থিত। উদাহরণ: `{command_prefixes_list[0]}gen 515462xxxxxx|02|28|573 5` অথবা `{command_prefixes_list[1]}gen 515462xxxxxx|02|28|573 5`", parse_mode="Markdown")
                     return
 
                 full_input = full_input_after_command
                 parts = full_input.split()
 
-                # Check if the last part is a number (for count)
                 if len(parts) > 1 and parts[-1].isdigit():
                     count = int(parts[-1])
                     count = min(count, 1000)
                     base_input = " ".join(parts[:-1]).strip()
                 else:
                     base_input = full_input
-                   
+
                 input_parts_cc = re.split(r"[|/]", base_input)
                 bin_part = input_parts_cc[0]
                 month = input_parts_cc[1] if len(input_parts_cc) > 1 else None
                 year = input_parts_cc[2] if len(input_parts_cc) > 2 else None
                 cvv = input_parts_cc[3] if len(input_parts_cc) > 3 else None
 
-                # Normalize month if single digit
                 if month and len(month) == 1:
                     month = '0' + month
-                # Normalize year to 4 digits if 2 digits are found
                 if year and len(year) == 2:
                     current_year_prefix = 20 if int(year) < 50 else 19
                     year = str(current_year_prefix) + year
 
-            if not bin_part: 
-                bot.reply_to(message, "❌ BIN খুঁজে পাওয়া যায়নি। দয়া করে আপনার ইনপুট বা উত্তর দেওয়া মেসেজ চেক করুন।", parse_mode="Markdown") # Changed parse_mode
+            if not bin_part:
+                bot.reply_to(message, "❌ BIN খুঁজে পাওয়া যায়নি। দয়া করে আপনার ইনপুট বা উত্তর দেওয়া মেসেজ চেক করুন।", parse_mode="Markdown")
                 return
 
-            # Call API to generate cards
             result = generate_cards_via_api(bin_part, count, month, year, cvv)
 
             if result and "error" in result:
@@ -223,14 +233,16 @@ def register(bot, custom_command_handler, command_prefixes_list):
 
             cards = result["cards"]
             info = result.get("info")
-            username = message.from_user.first_name or "User"
+
+            requester_info = get_user_identifier(message.from_user)
+
 
             if count > 10:
                 file = create_text_file(cards)
                 caption = (
                     f"𝗕𝗜𝗡 ⇾ <code>{bin_part}</code>\n"
                     f"𝗔𝗺𝗼𝘂𝗻𝘁 ⇾ {count}\n\n"
-                    f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {username}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
+                    f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {requester_info}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
                 )
                 bot.send_document(
                     chat_id=message.chat.id,
@@ -252,7 +264,7 @@ def register(bot, custom_command_handler, command_prefixes_list):
                         f"𝗕𝗮𝗻𝗸: {info['bank']}\n"
                         f"𝗖𝗼𝘂𝗻𝘁𝗿𝘆: {info['country']} {info['flag']}\n\n"
                     )
-                
+
                 regen_input_data = f"{bin_part}"
                 if month:
                     regen_input_data += f"|{month}"
@@ -260,9 +272,9 @@ def register(bot, custom_command_handler, command_prefixes_list):
                     regen_input_data += f"|{year}"
                 if cvv:
                     regen_input_data += f"|{cvv}"
-                regen_input_data += f" {count}"  
+                regen_input_data += f" {count}"
 
-                msg += f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {username}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
+                msg += f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {requester_info}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
                 encoded_input = encode_data(regen_input_data)
                 cb_data = f"regen|{encoded_input}"
                 markup = types.InlineKeyboardMarkup()
@@ -278,7 +290,7 @@ def register(bot, custom_command_handler, command_prefixes_list):
             decoded_input = decode_data(encoded_input)
 
             parts_with_count = decoded_input.split()
-            count = 10  
+            count = 10
             base_input = decoded_input
 
             if len(parts_with_count) > 1 and parts_with_count[-1].isdigit():
@@ -309,7 +321,8 @@ def register(bot, custom_command_handler, command_prefixes_list):
 
             cards = result["cards"]
             info = result.get("info")
-            username = call.from_user.first_name or "User"
+
+            requester_info = get_user_identifier(call.from_user)
 
             msg = (
                 f"𝗕𝗜𝗡 ⇾ <code>{bin_part}</code>\n"
@@ -324,7 +337,7 @@ def register(bot, custom_command_handler, command_prefixes_list):
                     f"𝗕𝗮𝗻𝗸: {info['bank']}\n"
                     f"𝗖𝗼𝘂𝗻𝘁𝗿𝘆: {info['country']} {info['flag']}\n\n"
                 )
-            msg += f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {username}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
+            msg += f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {requester_info}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
 
             markup = types.InlineKeyboardMarkup()
             markup.add(types.InlineKeyboardButton("♻️ Regenerate", callback_data=call.data))
