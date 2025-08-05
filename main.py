@@ -26,10 +26,11 @@ from handlers import (
     userinfo_handler,
     yt_handler,
     spam_handler,
-    iban_handler
+    iban_handler,
+    wth_handler
 )
 
-BOT_TOKEN = "🍒"
+BOT_TOKEN = "8090088552:AAFky32RnE4DwgjOIszpjbAXJsr_QsyY4kc"
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 COMMAND_PREFIXES = list(string.punctuation)
@@ -91,6 +92,7 @@ register_handler(userinfo_handler, "User Info")
 register_handler(yt_handler, "yt")
 register_handler(spam_handler, "spam")
 register_handler(iban_handler, "iban")
+register_handler(wth_handler, "weather")
 
 
 print("-" * 40)
