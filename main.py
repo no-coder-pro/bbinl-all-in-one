@@ -4,6 +4,7 @@ from flask import Flask
 from threading import Thread
 import cleanup
 import string
+import logging
 
 # Handlers import
 from handlers import (
@@ -30,7 +31,11 @@ from handlers import (
     wth_handler
 )
 
-BOT_TOKEN = "8090088552:AAFky32RnE4DwgjOIszpjbAXJsr_QsyY4kc"
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
+if not BOT_TOKEN:
+    print("❌ Error: BOT_TOKEN environment variable is not set!")
+    exit(1)
+
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 COMMAND_PREFIXES = list(string.punctuation)
@@ -47,12 +52,25 @@ def custom_command_handler(command_name):
 
 app = Flask('')
 
+# Custom logging filter to suppress health check spam
+class HealthCheckFilter(logging.Filter):
+    def filter(self, record):
+        # Suppress logs for /api health check requests
+        if hasattr(record, 'getMessage'):
+            message = record.getMessage()
+            if 'HEAD /api' in message and '404' in message:
+                return False
+        return True
+
 @app.route('/')
 def home():
     return "Bot is running!"
 
 def run():
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))
+    # Apply the filter to suppress health check spam
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.addFilter(HealthCheckFilter())
     app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
