@@ -24,21 +24,18 @@ A powerful Telegram bot with multiple utilities including card generation, trans
 ### 🎨 Image & Media Processing
 - **Background Removal**: Remove backgrounds from images
 - **Image Generation**: Create AI-generated images
-- **Format Conversion**: Convert between different file formats
 - **Media Download**: Download content from various platforms
 
 ### 📊 Information & User Features
 - **User Information**: Get detailed info about Telegram users, bots, groups, and channels
 - **Advanced User Lookup**: Multiple methods to fetch user data including usernames and IDs
 - **Group Analysis**: Detailed group and channel information retrieval
-- **Profile Data**: Access to user profiles, photos, and metadata
 
 ### 🛠️ Utility Features
 - **Multiple Fake Address Generators**: Generate test addresses using FakeXYZ and alternative sources
 - **IBAN Generation**: Create valid IBAN numbers for various countries
 - **Spam Generation**: Text spam and file generation tools
 - **Weather Information**: Real-time weather, forecasts, and air quality data
-- **Anti-Spam Protection**: Automatic spam detection
 - **File Management**: Download and process files
 
 ### 🎵 Media & Entertainment
@@ -219,7 +216,7 @@ Get information about users, bots, groups or channels.
 ```
 /fake <country_code>
 ```
-Generate fake address for testing purposes using your FakeXYZ library.
+Generate fake address for testing purposes using the FakeXYZ library.
 
 #### `/country` - List Supported Countries
 Shows available country codes for fake address generation.
@@ -391,6 +388,20 @@ OPENAI_API_KEY=your_openai_api_key_here
 
 ---
 
+## 🙏 Credits & Acknowledgments
+
+This bot utilizes several external libraries and services:
+
+- **FakeXYZ Library**: Custom Python library for generating realistic fake address data used in the `/fake` commands
+- **Google Gemini AI**: Advanced AI chat capabilities
+- **OpenAI GPT**: Alternative AI integration
+- **pyTelegramBotAPI**: Core Telegram bot framework
+- **Various APIs**: Weather, BIN lookup, and media download services
+
+Special thanks to all the open-source libraries and API providers that make this bot possible.
+
+---
+
 ## 📄 License
 
 This project is for educational purposes only. Use responsibly and in accordance with all applicable laws and terms of service.
@@ -404,8 +415,10 @@ This project is for educational purposes only. Use responsibly and in accordance
 - ✅ Added translation capabilities
 - ✅ Integrated AI chat features
 - ✅ Background removal functionality
-- ✅ File conversion utilities
-- ✅ Anti-spam protection
+- ✅ Added comprehensive user information commands
+- ✅ Multiple fake address generators
+- ✅ Weather and YouTube integration
+- ✅ IBAN and spam generation tools
 
 ---
 
