@@ -1,6 +1,7 @@
 import requests
 from telebot.types import Message, InputFile
 from io import BytesIO
+import html
 
 def register(bot, custom_command_handler, command_prefixes_list): 
     def fetch_info(bot, message: Message, target_type: str):
@@ -47,7 +48,8 @@ def register(bot, custom_command_handler, command_prefixes_list):
 
 ↯ API Owner: @itz_mahir404 follow: https://t.me/bro_bin_lagbe
 """
-                    bot.send_message(message.chat.id, f"<b>{local_msg}</b>", parse_mode="HTML")
+                    escaped_local_msg = html.escape(local_msg)
+                    bot.send_message(message.chat.id, f"<b>{escaped_local_msg}</b>", parse_mode="HTML")
                     return
             elif len(args_after_command) > 0 and args_after_command[0]: 
                 identifier = args_after_command[0].strip()
@@ -69,7 +71,7 @@ def register(bot, custom_command_handler, command_prefixes_list):
 
         # API Call
         try:
-            api_url = f"https://tele-user-info-api-production.up.railway.app/get_user_info?username={identifier}"
+            api_url = f"https://web-production-39d6.up.railway.app/get_user_info?username={identifier}"
             response = requests.get(api_url, timeout=15)
 
             if response.status_code != 200 or not response.text.strip():
@@ -87,6 +89,8 @@ def register(bot, custom_command_handler, command_prefixes_list):
                     msg_lines.append(line)
 
             final_msg = "\n".join(msg_lines)
+            # Escape HTML characters to prevent parsing errors with Unicode characters
+            escaped_msg = html.escape(final_msg)
 
             if profile_pic_url and profile_pic_url.startswith("http"):
                 try:
@@ -98,14 +102,14 @@ def register(bot, custom_command_handler, command_prefixes_list):
                     bot.send_photo(
                         chat_id=message.chat.id,
                         photo=InputFile(img),
-                        caption=f"<b>{final_msg}</b>",
+                        caption=f"<b>{escaped_msg}</b>",
                         parse_mode="HTML"
                     )
                     return
                 except:
-                    final_msg += "\n⚠️ প্রোফাইল ছবি লোড করা যায়নি।"
+                    escaped_msg += "\n⚠️ প্রোফাইল ছবি লোড করা যায়নি।"
 
-            bot.send_message(message.chat.id, f"<b>{final_msg}</b>", parse_mode="HTML")
+            bot.send_message(message.chat.id, f"<b>{escaped_msg}</b>", parse_mode="HTML")
 
         except requests.exceptions.Timeout:
             bot.reply_to(message, "❌ টাইমআউট! আবার চেষ্টা করুন।")
