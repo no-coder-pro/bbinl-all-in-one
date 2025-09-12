@@ -23,7 +23,7 @@ def register(bot, custom_command_handler, command_prefixes_list):
             bot.reply_to(message, f"❌ Country name or code missing.\n\n উদাহরণ:\n`{command_prefixes_list[0]}fake US`\n`{command_prefixes_list[1]}fake bangladesh`\n`{command_prefixes_list[2]}fake kzt`", parse_mode="HTML")
             return
 
-        user_input = args[0].strip()
+        user_input = user_input_raw.strip()
 
         try:
             # Let fakexyz handle country resolution and data fetching
