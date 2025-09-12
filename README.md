@@ -27,10 +27,24 @@ A powerful Telegram bot with multiple utilities including card generation, trans
 - **Format Conversion**: Convert between different file formats
 - **Media Download**: Download content from various platforms
 
+### 📊 Information & User Features
+- **User Information**: Get detailed info about Telegram users, bots, groups, and channels
+- **Advanced User Lookup**: Multiple methods to fetch user data including usernames and IDs
+- **Group Analysis**: Detailed group and channel information retrieval
+- **Profile Data**: Access to user profiles, photos, and metadata
+
 ### 🛠️ Utility Features
-- **Fake Address Generator**: Generate test addresses
+- **Multiple Fake Address Generators**: Generate test addresses using FakeXYZ and alternative sources
+- **IBAN Generation**: Create valid IBAN numbers for various countries
+- **Spam Generation**: Text spam and file generation tools
+- **Weather Information**: Real-time weather, forecasts, and air quality data
 - **Anti-Spam Protection**: Automatic spam detection
 - **File Management**: Download and process files
+
+### 🎵 Media & Entertainment
+- **YouTube Operations**: Search and download YouTube videos/audio
+- **AI Art Generation**: Create artwork with style-specific prompts
+- **Advanced Media Processing**: Multiple download sources and formats
 
 ---
 
@@ -156,8 +170,6 @@ Send an image with the caption `/bgremove` to remove its background.
 /imagine A beautiful sunset over mountains
 ```
 
-#### `/converter` - Convert Files
-Upload a file with `/converter` to convert between formats.
 
 #### `/download` - Download Media
 **Syntax:**
@@ -165,10 +177,103 @@ Upload a file with `/converter` to convert between formats.
 /download <URL>
 ```
 
+### 🔹 Information & User Commands
+
+#### `/usr` - User Information
+**Syntax:**
+```
+/usr @username
+/usr (reply to a message)
+```
+Get detailed information about a Telegram user.
+
+#### `/bot` - Bot Information  
+**Syntax:**
+```
+/bot @botusername
+```
+Get information about a Telegram bot.
+
+#### `/grp` - Group Information
+**Syntax:**
+```
+/grp @groupusername
+/grp (use in group without parameters)
+```
+Get information about a Telegram group.
+
+#### `/cnnl` - Channel Information
+**Syntax:**
+```
+/cnnl @channelusername
+```
+Get information about a Telegram channel.
+
+#### `/info` - General Info Command
+Get information about users, bots, groups or channels.
+
 ### 🔹 Utility Commands
 
-#### `/fkaddress` - Generate Fake Address
-Generates a random fake address for testing purposes.
+#### `/fake` - Generate Fake Address
+**Syntax:**
+```
+/fake <country_code>
+```
+Generate fake address for testing purposes using your FakeXYZ library.
+
+#### `/country` - List Supported Countries
+Shows available country codes for fake address generation.
+
+#### `/fake3` - Alternative Fake Address Generator
+**Syntax:**
+```
+/fake3 <country_code>
+```
+Alternative fake address generator with different data source.
+
+#### `/country3` - List Countries (Alternative)
+Shows available countries for `/fake3` command.
+
+#### `/iban` - Generate IBAN
+**Syntax:**
+```
+/iban <country_code>
+```
+Generate IBAN numbers for specified countries.
+
+#### `/ibncntry` - List IBAN Countries
+Shows supported countries for IBAN generation.
+
+#### `/spam` - Text Spam
+**Syntax:**
+```
+/spam <text>
+```
+Generate normal text spam messages.
+
+#### `/spmtxt` - Spam Text File
+Generate text files for spamming purposes.
+
+#### `/gart` - AI Art Generation
+**Syntax:**
+```
+/gart <prompt> | <style>
+```
+Generate AI artwork with specific style prompts.
+
+#### `/wth` - Weather Information
+**Syntax:**
+```
+/wth <city>
+```
+Get weather information, forecasts, and air quality for any city.
+
+#### `/yt` - YouTube Operations
+**Syntax:**
+```
+/yt <search term or URL>
+```
+Search YouTube videos and download them as audio or video.
 
 #### `/start` or `/arise` - Welcome Message
 Shows welcome message and basic command overview.
@@ -210,20 +315,33 @@ OPENAI_API_KEY=your_openai_api_key_here
 ## 📁 Project Structure
 
 ```
-├── handlers/                 # Command handlers
-│   ├── gen_handler.py        # Card generation
-│   ├── chk_handler.py        # Card checking
-│   ├── translate_handler.py  # Translation
-│   ├── gemini_handler.py     # AI chat
-│   ├── say_handler.py        # Text-to-speech
-│   ├── bgremove_handler.py   # Background removal
-│   ├── imagine_handler.py    # Image generation
-│   └── ...                   # Other handlers
-├── main.py                   # Main bot file
-├── cleanup.py                # Cleanup utilities
-├── flag_data.py             # Country flags data
-├── requirements.txt          # Python dependencies
-└── README.md                # This file
+├── handlers/                     # Command handlers
+│   ├── gen_handler.py            # Card generation
+│   ├── chk_handler.py            # Card checking and mass validation
+│   ├── bin_handler.py            # BIN information lookup
+│   ├── translate_handler.py      # Multi-language translation
+│   ├── gemini_handler.py         # Google Gemini AI chat
+│   ├── gpt_handler.py            # GPT AI integration
+│   ├── say_handler.py            # Text-to-speech conversion
+│   ├── bgremove_handler.py       # Background removal from images
+│   ├── imagine_handler.py        # AI image generation
+│   ├── gart_handler.py           # AI artwork generation
+│   ├── userinfo_handler.py       # User/bot/group/channel info
+│   ├── fakeAddress_handler.py    # Fake address generation (FakeXYZ)
+│   ├── fakeAddress2_handler.py   # Alternative fake addresses
+│   ├── fakeAddress3_handler.py   # Third fake address source
+│   ├── iban_handler.py           # IBAN generation
+│   ├── spam_handler.py           # Spam generation tools
+│   ├── wth_handler.py            # Weather information
+│   ├── yt_handler.py             # YouTube operations
+│   ├── download_handler.py       # Media download
+│   ├── start_handler.py          # Welcome messages
+│   └── reveal_handler.py         # Command list display
+├── main.py                       # Main bot file with Flask server
+├── cleanup.py                    # Cleanup utilities
+├── flag_data.py                 # Country flags data
+├── requirements.txt              # Python dependencies (including FakeXYZ)
+└── README.md                    # Documentation
 ```
 
 ---
