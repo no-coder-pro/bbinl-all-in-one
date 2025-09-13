@@ -3,7 +3,7 @@ from handlers.chk_handler import register as chk_register
 from handlers.bin_handler import register as bin_register
 from handlers.reveal_handler import register as reveal_register
 from handlers.gemini_handler import register as gemini_register
-from handlers.gmegt_handler import register as gmeg_regester
+from handlers.gmeg_handler import register as gmeg_regester
 from handlers.imagine_handler import register as imagine_register
 from handlers.say_handler import register as say_register
 from handlers.translate_handler import register as translate_register
@@ -20,3 +20,9 @@ from handlers.spam_handler import register as spam_register
 from handlers.iban_handler import register as iban_register
 from handlers.wth_handler import register as wth_register
 from handlers.imageedit_handler import register as imageedit_register
+from handlers.grok_handler import register as grok_register
+from handlers.deepseek_handler import register as deepseek_register
+from handlers.b3_handler import register as b3_register
+from handlers.movie_handler import register as movie_register
+from handlers.pfp_handler import register as pfp_register
+from handlers.enh_handler import register as enh_register
