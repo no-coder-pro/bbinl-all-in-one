@@ -49,7 +49,7 @@ async def generate_image(prompt, style, aspect_ratio):
 
 def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list):
 
-    @custom_command_handler("imagine")
+    @custom_command_handler("gmeg")
     def imagine_command(message):
         arg_string = message.text.split(" ", 1)[-1].strip()
 
