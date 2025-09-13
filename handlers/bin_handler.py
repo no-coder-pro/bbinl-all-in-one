@@ -1,28 +1,30 @@
 import aiohttp
 import asyncio
 import telebot
-from flag_data import COUNTRY_FLAGS
+import pycountry
 
-def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list): 
+def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list):
     @custom_command_handler("bin")
     def handle_bin_command(message):
-
-        command_text = message.text.split(" ", 1)[0].lower() 
+        command_text = message.text.split(" ", 1)[0].lower()
         actual_command = ""
-        for prefix in command_prefixes_list: 
+        for prefix in command_prefixes_list:
             if command_text.startswith(f"{prefix}bin"):
                 actual_command = f"{prefix}bin"
                 break
 
-        # যদি কোনো আর্গুমেন্ট না থাকে (যেমন শুধু /bin বা .bin)
-        if not message.text[len(actual_command):].strip(): 
+        if not message.text[len(actual_command):].strip():
             bot.reply_to(message, "❗ একটি BIN দিন যেমন: `/bin 426633`, `.bin 426633` অথবা `,bin 426633`", parse_mode="Markdown")
             return
 
-        # BIN নাম্বার বের করার জন্য পরিবর্তিত লজিক
         bin_number_raw = message.text[len(actual_command):].strip().split()[0]
         bin_number = ''.join(filter(str.isdigit, bin_number_raw))
 
+        if not bin_number or len(bin_number) < 6:
+            bot.reply_to(message, "❌ একটি বৈধ BIN (কমপক্ষে ৬ সংখ্যা) দিন।")
+            return
+            
+        bot.send_chat_action(message.chat.id, "typing")
 
         try:
             bin_info = asyncio.run(lookup_bin(bin_number))
@@ -39,48 +41,52 @@ def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list
             )
 
             formatted = (
-                f"𝗕𝗜𝗡 ⇾ `{bin_number}`\n"
-                f"𝗦𝗼𝘂𝗿𝗰𝗲: {bin_info.get('source', '❓ UNKNOWN')}\n\n"
+                f"💳 <b>BIN:</b> <code>{bin_info.get('bin', 'N/A')}</code>\n"
+                f"🌐 <b>Source:</b> <code>{bin_info.get('source', '❓ UNKNOWN')}</code>\n\n"
                 f"•──────────────────────•\n"
-                f"𝗧𝘆𝗽𝗲: {(bin_info.get('type') or 'Error').upper()} ({(bin_info.get('scheme') or 'Error').upper()})\n"
-                f"𝗕𝗿𝗮𝗻𝗱: {(bin_info.get('tier') or 'Error').upper()}\n"
-                f"𝐈𝐬𝐬𝐲𝐮𝐞𝐫: {(bin_info.get('bank') or 'Error').upper()}\n"
-                f"𝗖𝗼𝘂𝗻𝘁𝗿𝘆: {(bin_info.get('country') or 'Error').upper()} {bin_info.get('flag', '🏳️')}\n"
-                f"𝗖𝘂𝗿𝗿𝗲𝗻𝗰𝘆: {bin_info.get('currency', 'Error')} | 𝗖𝗼𝗱𝗲: {bin_info.get('country_code', 'N/A')}\n"
+                f"<b>Type:</b> <code>{bin_info.get('type', 'Error').upper()}</code> (<code>{bin_info.get('scheme', 'Error').upper()}</code>)\n"
+                f"<b>Brand:</b> <code>{bin_info.get('tier', 'Error').upper()}</code>\n"
+                f"<b>Issuer:</b> <code>{bin_info.get('bank', 'Error').upper()}</code>\n"
+                f"<b>Country:</b> <code>{bin_info.get('country', 'Error').upper()}</code> {bin_info.get('flag', '🏳️')}\n"
+                f"<b>Currency:</b> <code>{bin_info.get('currency', 'N/A')}</code> | <b>Code:</b> <code>{bin_info.get('country_code', 'N/A')}</code>\n"
                 f"•──────────────────────•\n\n"
-                f"𝗥𝗲𝗾𝘂𝗲𝘀𝘁 𝗯𝘆: {request_by}    |    𝗝𝗼𝗶𝗻: @bro_bin_lagbe"
+                f"<b>Request by:</b> {request_by}    |    <b>Join:</b> @bro_bin_lagbe"
             )
 
-            bot.reply_to(message, formatted, parse_mode="Markdown")
+            bot.reply_to(message, formatted, parse_mode="HTML")
 
         except Exception as e:
-            bot.reply_to(message, f"❌ Internal error: {str(e)}")
+            bot.reply_to(message, f"❌ অভ্যন্তরীণ ত্রুটি: {str(e)}")
 
 
 async def lookup_bin(bin_number: str) -> dict:
     bin_to_use = ''.join(filter(str.isdigit, bin_number))[:6]
     headers = { "User-Agent": "Mozilla/5.0" }
 
-    # 1️⃣ Your Own API
+    # 1️⃣ Vercel API
     try:
         async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://cc-gen-api-production.up.railway.app/bin/{bin_to_use}") as res:
+            async with session.get(f"https://bin-db.vercel.app/api/bin?bin={bin_to_use}", headers=headers) as res:
                 if res.status == 200:
                     data = await res.json()
-                    country = (data.get("country") or "").upper()
-                    return {
-                        "type": data.get("type"),
-                        "scheme": data.get("scheme"),
-                        "tier": data.get("tier"),
-                        "bank": data.get("bank"),
-                        "country": country,
-                        "currency": data.get("currency"),
-                        "country_code": data.get("country_code"),
-                        "flag": data.get("flag") or COUNTRY_FLAGS.get(country, "🏳️"),
-                        "source": "1️⃣ CC-Gen API"
-                    }
+                    if data and data.get("status") == "SUCCESS" and data.get("data"):
+                        bin_data = data["data"][0]
+                        country_code = bin_data.get("country_code", "N/A")
+                        country_info = get_country_info(country_code)
+                        return {
+                            "bin": bin_data.get("bin"),
+                            "type": bin_data.get("Type") or bin_data.get("type"),
+                            "scheme": bin_data.get("brand"),
+                            "tier": bin_data.get("CardTier") or bin_data.get("category"),
+                            "bank": bin_data.get("issuer"),
+                            "country": (bin_data.get("Country", {}).get("Name") or "N/A"),
+                            "currency": country_info["currency"],
+                            "country_code": country_code,
+                            "flag": country_info["flag"],
+                            "source": "1️⃣ Vercel API"
+                        }
     except Exception as e:
-        print("Your API fallback:", e)
+        print(f"Vercel API fallback for {bin_to_use}: {e}")
 
     # 2️⃣ HandyAPI
     try:
@@ -91,92 +97,42 @@ async def lookup_bin(bin_number: str) -> dict:
             ) as res:
                 if res.status == 200:
                     data = await res.json()
-                    country = (data.get("Country", {}).get("Name") or "").upper()
-                    return {
-                        "type": data.get("Type"),
-                        "scheme": data.get("Scheme"),
-                        "tier": data.get("CardTier"),
-                        "bank": data.get("Issuer"),
-                        "country": country,
-                        "currency": "N/A",
-                        "country_code": data.get("Country", {}).get("Alpha2", "N/A"),
-                        "flag": COUNTRY_FLAGS.get(country, "🏳️"),
-                        "prepaid": False,
-                        "luhn": True,
-                        "source": "2️⃣ HandyAPI"
-                    }
-    except Exception as e:
-        print("handyapi fallback:", e)
-
-    # 3️⃣ Binlist.net
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://lookup.binlist.net/{bin_to_use}", headers=headers) as res:
-                if res.status == 200:
-                    data = await res.json()
-                    country = (data.get("country", {}).get("name") or "").upper()
-                    return {
-                        "type": data.get("type"),
-                        "scheme": data.get("scheme"),
-                        "tier": data.get("brand"),
-                        "bank": data.get("bank", {}).get("name"),
-                        "country": country,
-                        "currency": data.get("country", {}).get("currency"),
-                        "country_code": data.get("country", {}).get("alpha2"),
-                        "flag": data.get("country", {}).get("emoji", "🏳️"),
-                        "prepaid": data.get("number", {}).get("prepaid", False),
-                        "luhn": data.get("number", {}).get("luhn", True),
-                        "source": "3️⃣ Binlist"
-                    }
-    except Exception as e:
-        print("binlist fallback:", e)
-
-    # 4️⃣ DrLab API
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://drlabapis.onrender.com/api/bin?bin={bin_to_use}", headers=headers) as res:
-                if res.status == 200:
-                    data = await res.json()
-                    if data.get("status") == "ok":
-                        country = (data.get("country") or "").upper()
+                    if data and data.get("Status") == "SUCCESS":
+                        country_code = data.get("Country", {}).get("A2", "N/A")
+                        country_info = get_country_info(country_code)
                         return {
-                            "type": data.get("type"),
-                            "scheme": data.get("scheme"),
-                            "tier": data.get("tier"),
-                            "bank": data.get("issuer"),
-                            "country": country,
-                            "currency": "N/A",
-                            "country_code": "N/A",
-                            "flag": COUNTRY_FLAGS.get(country, "🏳️"),
-                            "prepaid": False,
-                            "luhn": True,
-                            "source": "4️⃣ DrLab API"
+                            "bin": bin_to_use,
+                            "type": data.get("Type"),
+                            "scheme": data.get("Scheme"),
+                            "tier": data.get("CardTier"),
+                            "bank": data.get("Issuer"),
+                            "country": (data.get("Country", {}).get("Name") or "N/A"),
+                            "currency": country_info["currency"],
+                            "country_code": country_code,
+                            "flag": country_info["flag"],
+                            "source": "2️⃣ HandyAPI"
                         }
     except Exception as e:
-        print("drlab fallback:", e)
+        print(f"HandyAPI fallback for {bin_to_use}: {e}")
 
-    # 5️⃣ Bingen.vercel.app
+    return {"error": "BIN তথ্য কোনো সোর্স থেকে পাওয়া যায়নি।"}
+
+
+def get_country_info(country_code):
+    info = {
+        "flag": "🏳️",
+        "currency": "N/A"
+    }
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f"https://bingen-rho.vercel.app/?bin={bin_to_use}", headers=headers) as res:
-                if res.status == 200:
-                    data = await res.json()
-                    bin_info = data.get("bin_info", {})
-                    country = (bin_info.get("country") or "").upper()
-                    return {
-                        "type": bin_info.get("type"),
-                        "scheme": bin_info.get("scheme"),
-                        "tier": bin_info.get("brand"),
-                        "bank": bin_info.get("bank"),
-                        "country": country,
-                        "currency": "N/A",
-                        "country_code": bin_info.get("country_code", "N/A"),
-                        "flag": bin_info.get("flag", "🏳️"),
-                        "prepaid": False,
-                        "luhn": True,
-                        "source": "5️⃣ Bingen"
-                    }
+        if country_code and country_code.upper() != "N/A":
+            country = pycountry.countries.get(alpha_2=country_code.upper())
+            if country:
+                info["flag"] = country.flag
+                try:
+                    currency = pycountry.currencies.get(numeric=country.numeric)
+                    info["currency"] = currency.alpha_3
+                except:
+                    pass
     except Exception as e:
-        print("bingen fallback:", e)
-
-    return {"error": "BIN info not found in any source"}
+        print(f"Pycountry lookup error for code {country_code}: {e}")
+    return info
