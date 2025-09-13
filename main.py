@@ -20,6 +20,7 @@ from handlers import (
     say_handler,
     translate_handler,
     download_handler,
+    bgremove_handler,
     gpt_handler,
     fakeAddress_handler,
     fakeAddress2_handler,
@@ -28,7 +29,10 @@ from handlers import (
     yt_handler,
     spam_handler,
     iban_handler,
-    wth_handler
+    wth_handler,
+    imageedit_handler,
+    grok_handler,
+    deepseek_handler
 )
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -40,10 +44,15 @@ bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 COMMAND_PREFIXES = list(string.punctuation)
 
-def custom_command_handler(command_name):
+def custom_command_handler(*command_names):
+    """
+    A decorator that handles multiple command names for a single function.
+    """
     def decorator(handler_func):
         @bot.message_handler(func=lambda message: message.text and any(
-            message.text.lower().startswith(f"{prefix}{command_name}") for prefix in COMMAND_PREFIXES
+            message.text.lower().startswith(f"{prefix}{command_name}")
+            for command_name in command_names
+            for prefix in COMMAND_PREFIXES
         ))
         def wrapper(message):
             return handler_func(message)
@@ -96,7 +105,7 @@ register_handler(chk_handler, "Check")
 register_handler(bin_handler, "BIN")
 register_handler(reveal_handler, "Reveal")
 register_handler(gemini_handler, "Gemini")
-register_handler(gmeg_handler, "gmeg")
+register_handler(gmeg_handler, "Gmeg")
 register_handler(imagine_handler, "Imagine")
 register_handler(say_handler, "Say")
 register_handler(translate_handler, "Translate")
@@ -111,7 +120,9 @@ register_handler(yt_handler, "yt")
 register_handler(spam_handler, "spam")
 register_handler(iban_handler, "iban")
 register_handler(wth_handler, "weather")
-
+register_handler(imageedit_handler, "edit")
+register_handler(grok_handler, "grok")
+register_handler(deepseek_handler, "deepseek")
 
 print("-" * 40)
 print("✨ Handler registration completed!\n")
