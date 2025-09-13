@@ -15,7 +15,7 @@ from handlers import (
     bin_handler,
     reveal_handler,
     gemini_handler,
-    gart_handler,
+    gmeg_handler,
     imagine_handler,
     say_handler,
     translate_handler,
@@ -96,7 +96,7 @@ register_handler(chk_handler, "Check")
 register_handler(bin_handler, "BIN")
 register_handler(reveal_handler, "Reveal")
 register_handler(gemini_handler, "Gemini")
-register_handler(gart_handler, "Gart")
+register_handler(gmeg_handler, "gmeg")
 register_handler(imagine_handler, "Imagine")
 register_handler(say_handler, "Say")
 register_handler(translate_handler, "Translate")
