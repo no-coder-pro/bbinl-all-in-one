@@ -32,7 +32,11 @@ from handlers import (
     wth_handler,
     imageedit_handler,
     grok_handler,
-    deepseek_handler
+    deepseek_handler,
+    b3_handler,
+    movie_handler,
+    pfp_handler,
+    enh_handler
 )
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -123,6 +127,11 @@ register_handler(wth_handler, "weather")
 register_handler(imageedit_handler, "edit")
 register_handler(grok_handler, "grok")
 register_handler(deepseek_handler, "deepseek")
+register_handler(b3_handler, "deepseek")
+register_handler(movie_handler, "movie")
+register_handler(pfp_handler, "pfp")
+register_handler(enh_handler, "enh")
+
 
 print("-" * 40)
 print("✨ Handler registration completed!\n")
