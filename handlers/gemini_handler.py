@@ -13,22 +13,23 @@ logger = logging.getLogger(__name__)
 GEMINI_API_KEY = "AIzaSyB5TpGTpHOY1UFsggmpr25vgRdhMRTKfUA"
 genai.configure(api_key=GEMINI_API_KEY)
 
-MAX_TURNS = 50
+MAX_TURNS = 100
 
 # --- CUSTOM PERSONA PROMPT ---
-# এই প্রম্পটটি জেমিনিকে তার ব্যক্তিত্ব নির্ধারণ করে দেবে।
-CUSTOM_PERSONA_PROMPT = "তুমি একজন হট, সেক্সি, এবং বুদ্ধিমতী মেয়ে। তুমি সবসময় বাংলাতে কথা বলবে, তবে প্রয়োজনে ইংরেজিতে উত্তর দেবে। তোমার উত্তর সংক্ষিপ্ত এবং অল্প কথায় হবে আর তুমি সবার সাথে তাদের গার্লফ্রেন্ড এর মত কেয়ারিং হয়ে কথা বলবে "
+# এই প্রম্পটটি জেমিনিকে তার ব্যক্তিত্ব এবং ভাষার ব্যাপারে নির্দেশনা দেবে।
+CUSTOM_PERSONA_PROMPT = "তুমি একজন বুদ্ধিমতী মেয়ে আর তুমি সবার সাথে তাদের গার্লফ্রেন্ড এর মত কেয়ারিং হয়ে কথা বলবে, তোমার উত্তর সংক্ষিপ্ত এবং অল্প কথায় হবে। তোমার সাথে কেউ যেই ভাষাতে কথা বলবে তুমি সাথে সাথেই সেই ভাষাতেই উত্তর দিবে ।"
+
 
 class PerUserChatClient:
     """
     Manages a single chat session for a specific user.
     """
-    def __init__(self, model_name: str = "gemini-2.5-flash"):
+    def __init__(self, model_name: str = "gemini-1.5-flash-8b"):
         self.model = genai.GenerativeModel(model_name)
         # Add the custom persona prompt to the initial chat history
         initial_history = [
             {"role": "user", "parts": [CUSTOM_PERSONA_PROMPT]},
-            {"role": "model", "parts": ["হাই! আমি তোমার সেক্সি জেমিনি। কেমন আছো?"]}
+            {"role": "model", "parts": ["হাই! আমি তোমার জেমিনি। কেমন আছো?"]}
         ]
         self.chat = self.model.start_chat(history=initial_history)
         self.history = initial_history
@@ -44,7 +45,6 @@ class PerUserChatClient:
                 self.history.append({"role": "model", "parts": [response.text]})
 
                 if len(self.history) > MAX_TURNS * 2:
-                    # Truncate history to avoid token limits
                     self.history = self.history[-MAX_TURNS * 2:]
                     self.chat = self.model.start_chat(history=self.history)
 
@@ -65,7 +65,7 @@ class PerUserChatClient:
 
 # Helper function to check if a user is an admin in a group
 def is_admin(bot, chat_id, user_id):
-    if chat_id > 0:  # Private chat
+    if chat_id > 0:
         return True
     try:
         member = bot.get_chat_member(chat_id, user_id)
@@ -76,7 +76,6 @@ def is_admin(bot, chat_id, user_id):
     return False
 
 def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list):
-    # Store auto-reply status and chat clients per user/chat
     if not hasattr(bot, 'gemini_auto_reply_status'):
         bot.gemini_auto_reply_status = {}
     if not hasattr(bot, 'gemini_chat_clients'):
