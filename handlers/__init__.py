@@ -1,10 +1,10 @@
-from .gen_handler import register as gen_register
-from .chk_handler import register as chk_register
-from .bin_handler import register as bin_register
-from .reveal_handler import register as reveal_register
-from .gemini_handler import register as gemini_register
-from .gart_handler import register as gart_regester
-from .imagine_handler import register as imagine_register
+from handlers.gen_handler import register as gen_register
+from handlers.chk_handler import register as chk_register
+from handlers.bin_handler import register as bin_register
+from handlers.reveal_handler import register as reveal_register
+from handlers.gemini_handler import register as gemini_register
+from handlers.gmegt_handler import register as gmeg_regester
+from handlers.imagine_handler import register as imagine_register
 from handlers.say_handler import register as say_register
 from handlers.translate_handler import register as translate_register
 from handlers.download_handler import register as download_register
@@ -19,3 +19,4 @@ from handlers.yt_handler import register as yt_register
 from handlers.spam_handler import register as spam_register
 from handlers.iban_handler import register as iban_register
 from handlers.wth_handler import register as wth_register
+from handlers.imageedit_handler import register as imageedit_register
