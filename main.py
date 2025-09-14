@@ -36,7 +36,8 @@ from handlers import (
     b3_handler,
     movie_handler,
     pfp_handler,
-    enh_handler
+    enh_handler,
+    bomb_handler
 )
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -131,6 +132,7 @@ register_handler(b3_handler, "deepseek")
 register_handler(movie_handler, "movie")
 register_handler(pfp_handler, "pfp")
 register_handler(enh_handler, "enh")
+register_handler(bomb_handler, "bomb")
 
 
 print("-" * 40)
