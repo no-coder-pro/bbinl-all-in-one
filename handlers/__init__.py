@@ -7,8 +7,6 @@ from handlers.deepseek_handler import register as deepseek_register
 from handlers.download_handler import register as download_register
 from handlers.enh_handler import register as enh_register
 from handlers.fakeAddress_handler import register as fakeAddress_register
-from handlers.fakeAddress2_handler import register as fakeAddress2_register
-from handlers.fakeAddress3_handler import register as fakeAddress3_register
 from handlers.gen_handler import register as gen_register
 from handlers.gemini_handler import register as gemini_register
 from handlers.gmeg_handler import register as gmeg_regester
