@@ -26,3 +26,5 @@ from handlers.b3_handler import register as b3_register
 from handlers.movie_handler import register as movie_register
 from handlers.pfp_handler import register as pfp_register
 from handlers.enh_handler import register as enh_register
+from handlers.bomb_handler import register as bomb_register
+from handlers.b3_handler import register as b3_register
