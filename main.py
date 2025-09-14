@@ -1,10 +1,10 @@
-import telebot
 import os
+import telebot
+import logging
 from flask import Flask
 from threading import Thread
 import cleanup
 import string
-import logging
 
 # Handlers import
 from handlers import (
@@ -39,11 +39,7 @@ from handlers import (
     yt_handler
 )
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-if not BOT_TOKEN:
-    print("❌ Error: BOT_TOKEN environment variable is not set!")
-    exit(1)
-
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "8288718215:AAEFh06q-HAZwty6p5Do14qr9p6xXCSe44I")
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 COMMAND_PREFIXES = list(string.punctuation)
