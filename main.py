@@ -8,36 +8,35 @@ import logging
 
 # Handlers import
 from handlers import (
-    start_handler,
+    b3_handler,
     bgremove_handler,
-    gen_handler,
-    chk_handler,
     bin_handler,
-    reveal_handler,
-    gemini_handler,
-    gmeg_handler,
-    imagine_handler,
-    say_handler,
-    translate_handler,
+    bomb_handler,
+    chk_handler,
+    deepseek_handler,
     download_handler,
-    bgremove_handler,
-    gpt_handler,
+    enh_handler,
     fakeAddress_handler,
     fakeAddress2_handler,
     fakeAddress3_handler,
-    userinfo_handler,
-    yt_handler,
-    spam_handler,
-    iban_handler,
-    wth_handler,
-    imageedit_handler,
+    gen_handler,
+    gemini_handler,
+    gmeg_handler,
+    gpt_handler,
     grok_handler,
-    deepseek_handler,
-    b3_handler,
+    iban_handler,
+    imageedit_handler,
+    imagine_handler,
     movie_handler,
     pfp_handler,
-    enh_handler,
-    bomb_handler
+    reveal_handler,
+    say_handler,
+    spam_handler,
+    start_handler,
+    translate_handler,
+    userinfo_handler,
+    wth_handler,
+    yt_handler
 )
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
@@ -104,35 +103,35 @@ print("\n🔄 Loading command handlers...")
 print("-" * 40)
 
 # Register all handlers
-register_handler(start_handler, "Start")
-register_handler(gen_handler, "Gen")
-register_handler(chk_handler, "Check")
-register_handler(bin_handler, "BIN")
-register_handler(reveal_handler, "Reveal")
-register_handler(gemini_handler, "Gemini")
-register_handler(gmeg_handler, "Gmeg")
-register_handler(imagine_handler, "Imagine")
-register_handler(say_handler, "Say")
-register_handler(translate_handler, "Translate")
-register_handler(download_handler, "Download")
+register_handler(b3_handler, "B3")
 register_handler(bgremove_handler, "BG Remove")
-register_handler(gpt_handler, "GPT")
+register_handler(bin_handler, "BIN")
+register_handler(chk_handler, "Check")
+register_handler(deepseek_handler, "Deepseek")
+register_handler(download_handler, "Download")
+register_handler(bomb_handler, "Bomber")
+register_handler(enh_handler, "enh")
 register_handler(fakeAddress_handler, "Fake Address")
 register_handler(fakeAddress2_handler, "Fake Address2")
 register_handler(fakeAddress3_handler, "Fake Address3")
-register_handler(userinfo_handler, "User Info")
-register_handler(yt_handler, "yt")
-register_handler(spam_handler, "spam")
-register_handler(iban_handler, "iban")
-register_handler(wth_handler, "weather")
-register_handler(imageedit_handler, "edit")
+register_handler(gen_handler, "Gen")
+register_handler(gemini_handler, "Gemini")
+register_handler(gmeg_handler, "Gmeg")
+register_handler(gpt_handler, "GPT")
 register_handler(grok_handler, "grok")
-register_handler(deepseek_handler, "deepseek")
-register_handler(b3_handler, "deepseek")
+register_handler(iban_handler, "iban")
+register_handler(imageedit_handler, "edit")
+register_handler(imagine_handler, "Imagine")
 register_handler(movie_handler, "movie")
 register_handler(pfp_handler, "pfp")
-register_handler(enh_handler, "enh")
-register_handler(bomb_handler, "bomb")
+register_handler(reveal_handler, "Reveal")
+register_handler(say_handler, "Say")
+register_handler(spam_handler, "spam")
+register_handler(start_handler, "Start")
+register_handler(translate_handler, "Translate")
+register_handler(userinfo_handler, "User Info")
+register_handler(wth_handler, "weather")
+register_handler(yt_handler, "yt")
 
 
 print("-" * 40)
