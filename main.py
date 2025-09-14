@@ -17,8 +17,6 @@ from handlers import (
     download_handler,
     enh_handler,
     fakeAddress_handler,
-    fakeAddress2_handler,
-    fakeAddress3_handler,
     gen_handler,
     gemini_handler,
     gmeg_handler,
@@ -108,8 +106,6 @@ register_handler(deepseek_handler, "Deepseek")
 register_handler(download_handler, "Download")
 register_handler(enh_handler, "enh")
 register_handler(fakeAddress_handler, "Fake Address")
-register_handler(fakeAddress2_handler, "Fake Address2")
-register_handler(fakeAddress3_handler, "Fake Address3")
 register_handler(gen_handler, "Gen")
 register_handler(gemini_handler, "Gemini")
 register_handler(gmeg_handler, "Gmeg")
