@@ -37,7 +37,7 @@ from handlers import (
     yt_handler
 )
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8288718215:AAEFh06q-HAZwty6p5Do14qr9p6xXCSe44I")
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 bot = telebot.TeleBot(BOT_TOKEN, parse_mode="HTML")
 
 COMMAND_PREFIXES = list(string.punctuation)
