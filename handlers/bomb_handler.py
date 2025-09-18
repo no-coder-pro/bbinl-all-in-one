@@ -32,8 +32,8 @@ def register(bot, custom_command_handler, command_prefixes_list):
 <code>{command_prefixes_list[1]}বোমা [ফোন নম্বর] [পরিমাণ]</code>
 
 <b>উদাহরণ:</b>
-<code>{command_prefixes_list[0]}bmb 01xxxxxxxxx 1</code>
-<code>{command_prefixes_list[1]}bomb 01xxxxxxxxx 5</code>
+<code>{command_prefixes_list[0]}bmb 01712345678 1</code>
+<code>{command_prefixes_list[1]}bomb 01712345678 5</code>
 
 <b>নোট:</b> পরিমাণ না দিলে ডিফল্ট ১টি রিকোয়েস্ট পাঠানো হবে।"""
             bot.reply_to(message, help_text, parse_mode="HTML")
@@ -51,17 +51,15 @@ def register(bot, custom_command_handler, command_prefixes_list):
         if len(parts) >= 2 and parts[1].isdigit():
             amount = int(parts[1])
         
-        # Validate phone number (basic validation)
+        # Validate and normalize phone number
+        # This regex now allows +880, 880, or 0 at the beginning, followed by an 11-digit number
         if not re.match(r'^(\+880|880|0)?1[3-9]\d{8}$', phone_number):
             bot.reply_to(message, "❌ সঠিক বাংলাদেশি ফোন নম্বর দিন! (উদাহরণ: 01775179605)", parse_mode="HTML")
             return
         
-        # Normalize phone number (remove +880, 880, or 0 prefix if present)
-        normalized_number = phone_number
-        if phone_number.startswith('+880'):
-            normalized_number = '0' + phone_number[4:]
-        elif phone_number.startswith('880'):
-            normalized_number = '0' + phone_number[3:]
+        # Normalize the number by keeping only the last 11 digits
+        # This handles inputs like +8801712345678 and 8801712345678
+        normalized_number = phone_number[-11:]
         
         # Limit amount to prevent abuse
         if amount > 10:
@@ -82,7 +80,7 @@ def register(bot, custom_command_handler, command_prefixes_list):
                 'Content-Type': 'application/json'
             }
             
-            # Send request to API
+            # Send request to API with a 120-second timeout
             response = requests.post(url, json=payload, headers=headers, timeout=120)
             response.raise_for_status()
             
