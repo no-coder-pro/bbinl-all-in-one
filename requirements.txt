@@ -1,7 +1,6 @@
 aiofiles
 aiohttp
 Babel
-FakeXYZ
 flask
 google-generativeai
 gtts
@@ -15,3 +14,5 @@ pytz
 requests
 tgcrypto
 yt-dlp
+python-Levenshtein
+fuzzywuzzy
