@@ -11,57 +11,84 @@ import html
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# API endpoints
-FB_PFP_API = "https://insta-fb-pp.vercel.app/api/pfp?url={url}"
-INSTA_PFP_API = "https://insta-fb-pp.vercel.app/api/instagram?url={url}"
+# New API endpoints
+FB_PFP_API = "https://fb-unlock-plum.vercel.app/api/fb?url={url}"
+INSTA_PFP_API = "https://fb-unlock-plum.vercel.app/api/ig?url={url}"
 
 
 async def get_profile_picture(url: str) -> Dict[str, Any]:
-    """Downloads a profile picture from a given URL using the appropriate API."""
+    """
+    Downloads profile pictures from a given URL using the new API.
+    Handles both direct image downloads (Instagram) and JSON responses (Facebook).
+    """
     try:
         parsed_url = urlparse(url)
-        if "facebook.com" in parsed_url.netloc:
-            api_url = FB_PFP_API.format(url=url)
-        elif "instagram.com" in parsed_url.netloc:
+        image_paths = []
+
+        if "instagram.com" in parsed_url.netloc:
             api_url = INSTA_PFP_API.format(url=url)
-        else:
-            return {
-                "status": "error",
-                "error": "❌ শুধুমাত্র ফেসবুক বা ইনস্টাগ্রাম প্রোফাইলের URL দিন।"
-            }
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(api_url) as res:
-                res.raise_for_status()
-
-                # Check the content type to decide how to handle the response
-                content_type = res.headers.get('Content-Type', '')
-                if 'image' in content_type:
+            async with aiohttp.ClientSession() as session:
+                async with session.get(api_url) as res:
+                    if res.status == 404:
+                        return {"status": "error", "error": "❌ ইনস্টাগ্রাম প্রোফাইলটি খুঁজে পাওয়া যায়নি অথবা ইউজারনেম ভুল।"}
+                    res.raise_for_status()
                     image_bytes = await res.read()
 
-                    # Save the image to a temporary file
                     with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
                         tmp.write(image_bytes)
-                        temp_path = tmp.name
+                        image_paths.append(tmp.name)
+                    return {"status": "success", "image_paths": image_paths, "message": "✅ সফল! এখানে আপনার প্রোফাইল ছবিটি আছে।"}
 
-                    return {
-                        "status": "success",
-                        "image_path": temp_path
-                    }
-                else:
+        elif "facebook.com" in parsed_url.netloc:
+            api_url = FB_PFP_API.format(url=url)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(api_url) as res:
+                    res.raise_for_status()
                     data = await res.json()
-                    return {
-                        "status": "error",
-                        "error": data.get("error", "❌ API থেকে কোনো তথ্য পাওয়া যায়নি।")
-                    }
 
-    except aiohttp.ClientResponseError as e:
-        return {"status": "error", "error": f"API ত্রুটি: {e.status} - {e.message}"}
+                    if data.get("profile_status") == "public":
+                        return {"status": "error", "error": "⚠️ This is a Public Profile. আপনি নিজেই প্রোফাইলে গিয়ে ছবিগুলো নিতে পারেন।"}
+
+                    if data.get("status") == "success":
+                        image_urls = []
+                        if "profile_picture" in data and data["profile_picture"] and len(data["profile_picture"]) > 0:
+                            image_urls.append(data["profile_picture"][0])
+                        if "cover_photo" in data and data["cover_photo"].get("url"):
+                            image_urls.append(data["cover_photo"]["url"])
+
+                        downloaded_count = 0
+                        for img_url in image_urls:
+                            try:
+                                async with session.get(img_url) as img_res:
+                                    img_res.raise_for_status()
+                                    image_bytes = await img_res.read()
+                                    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp:
+                                        tmp.write(image_bytes)
+                                        image_paths.append(tmp.name)
+                                        downloaded_count += 1
+                            except aiohttp.ClientResponseError:
+                                continue
+
+                        if downloaded_count == 2:
+                            message = "✅ সফল! এখানে আপনার প্রোফাইল এবং কভার ছবি আছে।"
+                        elif downloaded_count == 1:
+                            message = "✅ সফল! তবে শুধুমাত্র একটি ছবি পাওয়া গেছে।"
+                        else:
+                            return {"status": "error", "error": "❌ প্রোফাইল লকড হওয়া সত্ত্বেও কোনো ছবি পাওয়া যায়নি। হয়তো ছবিগুলো নেই অথবা API থেকে কোনো রেসপন্স আসেনি। অনুগ্রহ করে এডমিনের সাথে যোগাযোগ করুন: @no_coder_pro"}
+
+                        return {"status": "success", "image_paths": image_paths, "message": message}
+                    else:
+                        error_message = data.get("error", "❌ API থেকে কোনো তথ্য পাওয়া যায়নি।")
+                        return {"status": "error", "error": error_message}
+        else:
+            return {"status": "error", "error": "❌ শুধুমাত্র ফেসবুক বা ইনস্টাগ্রাম প্রোফাইলের URL দিন।"}
+
     except Exception as e:
-        return {"status": "error", "error": f"একটি অপ্রত্যাশিত ত্রুটি হয়েছে: {str(e)}"}
+        return {"status": "error", "error": f"❌ একটি অপ্রত্যাশিত ত্রুটি হয়েছে: {str(e)}। অনুগ্রহ করে আবার চেষ্টা করুন।"}
 
 
 def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list):
+
     @custom_command_handler("pfp", "profilepic")
     def handle_pfp_command(message):
         command_text = message.text.split(" ", 1)[0].lower()
@@ -74,38 +101,44 @@ def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list
         url = message.text[actual_command_len:].strip()
 
         if not url:
-            bot.reply_to(message, "❌ অনুগ্রহ করে একটি ফেসবুক বা ইনস্টাগ্রাম প্রোফাইল URL দিন। যেমন: `/pfp https://www.facebook.com/...`", parse_mode="Markdown")
+            bot.reply_to(
+                message,
+                "❌ অনুগ্রহ করে একটি ফেসবুক বা ইনস্টাগ্রাম প্রোফাইল URL দিন। যেমন: `/pfp https://www.facebook.com/...`",
+                parse_mode="Markdown")
             return
 
         thinking_message = bot.reply_to(message, "⏳ প্রোফাইল ছবিটি ডাউনলোড করা হচ্ছে...")
 
-        image_path = None
+        image_paths = []
         try:
             result = asyncio.run(get_profile_picture(url))
 
             if result['status'] == 'success':
-                image_path = result['image_path']
+                image_paths = result['image_paths']
 
-                with open(image_path, 'rb') as f:
-                    bot.send_photo(
+                if len(image_paths) > 1:
+                    media_group = [telebot.types.InputMediaPhoto(open(path, 'rb')) for path in image_paths]
+                    media_group[0].caption = result['message']
+                    bot.send_media_group(
                         message.chat.id,
-                        f,
-                        caption=f"✅ সফল! এখানে আপনার প্রোফাইল ছবিটি আছে।",
+                        media_group,
                         reply_to_message_id=message.message_id
                     )
+                else:
+                    with open(image_paths[0], 'rb') as f:
+                        bot.send_photo(
+                            message.chat.id,
+                            f,
+                            caption=result['message'],
+                            reply_to_message_id=message.message_id
+                        )
+
                 bot.delete_message(thinking_message.chat.id, thinking_message.message_id)
             else:
-                bot.edit_message_text(
-                    chat_id=thinking_message.chat.id,
-                    message_id=thinking_message.message_id,
-                    text=result['error']
-                )
+                bot.edit_message_text(chat_id=thinking_message.chat.id, message_id=thinking_message.message_id, text=result['error'])
         except Exception as e:
-            bot.edit_message_text(
-                chat_id=thinking_message.chat.id,
-                message_id=thinking_message.message_id,
-                text=f"❌ একটি ত্রুটি হয়েছে: {str(e)}"
-            )
+            bot.edit_message_text(chat_id=thinking_message.chat.id, message_id=thinking_message.message_id, text=f"❌ একটি অপ্রত্যাশিত ত্রুটি হয়েছে: {str(e)}।")
         finally:
-            if image_path and os.path.exists(image_path):
-                os.remove(image_path)
+            for path in image_paths:
+                if os.path.exists(path):
+                    os.remove(path)
