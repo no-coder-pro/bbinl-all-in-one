@@ -30,7 +30,7 @@ async def get_profile_picture(url: str) -> Dict[str, Any]:
             async with aiohttp.ClientSession() as session:
                 async with session.get(api_url) as res:
                     if res.status == 404:
-                        return {"status": "error", "error": "❌ ইনস্টাগ্রাম প্রোফাইলটি খুঁজে পাওয়া যায়নি অথবা ইউজারনেম ভুল।"}
+                        return {"status": "error", "error": "❌ ইনস্টাগ্রাম প্রোফাইলটি খুঁজে পাওয়া যায়নি অথবা ইউজারনেম ভুল।"}
                     res.raise_for_status()
                     image_bytes = await res.read()
 
@@ -47,7 +47,7 @@ async def get_profile_picture(url: str) -> Dict[str, Any]:
                     data = await res.json()
 
                     if data.get("profile_status") == "public":
-                        return {"status": "error", "error": "⚠️ This is a Public Profile. আপনি নিজেই প্রোফাইলে গিয়ে ছবিগুলো নিতে পারেন।"}
+                        return {"status": "error", "error": "⚠️ This is a Public Profile. আপনি নিজেই প্রোফাইলে গিয়ে ছবিগুলো নিতে পারেন।"}
 
                     if data.get("status") == "success":
                         image_urls = []
@@ -89,12 +89,12 @@ async def get_profile_picture(url: str) -> Dict[str, Any]:
 
 def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list):
 
-    @custom_command_handler("pfp", "profilepic")
+    @custom_command_handler("pfp", "pp")
     def handle_pfp_command(message):
         command_text = message.text.split(" ", 1)[0].lower()
         actual_command_len = 0
         for prefix in command_prefixes_list:
-            if command_text.startswith(f"{prefix}pfp") or command_text.startswith(f"{prefix}profilepic"):
+            if command_text.startswith(f"{prefix}pfp") or command_text.startswith(f"{prefix}pp"): 
                 actual_command_len = len(command_text)
                 break
 
@@ -137,7 +137,7 @@ def register(bot: telebot.TeleBot, custom_command_handler, command_prefixes_list
             else:
                 bot.edit_message_text(chat_id=thinking_message.chat.id, message_id=thinking_message.message_id, text=result['error'])
         except Exception as e:
-            bot.edit_message_text(chat_id=thinking_message.chat.id, message_id=thinking_message.message_id, text=f"❌ একটি অপ্রত্যাশিত ত্রুটি হয়েছে: {str(e)}।")
+            bot.edit_message_text(chat_id=thinking_message.chat.id, message_id=thinking_message.message_id, text=f"❌ একটি অপ্রত্যাশিত ত্রুটি হয়েছে: {str(e)}। অনুগ্রহ করে আবার চেষ্টা করুন।")
         finally:
             for path in image_paths:
                 if os.path.exists(path):
