@@ -127,7 +127,7 @@ Add these secrets in your Replit environment as shown above.
 │   ├── imagine_handler.py        # AI image generation
 │   ├── gart_handler.py           # AI artwork generation
 │   ├── userinfo_handler.py       # User/bot/group/channel info
-│   ├── fakeAddress_handler.py    # Fake address generation (FakeXYZ)
+│   ├── fakeAddress_handler.py    # Fake address generation 
 │   ├── fakeAddress2_handler.py   # Alternative fake addresses
 │   ├── fakeAddress3_handler.py   # Third fake address source
 │   ├── iban_handler.py           # IBAN generation
@@ -140,7 +140,7 @@ Add these secrets in your Replit environment as shown above.
 ├── main.py                       # Main bot file with Flask server
 ├── cleanup.py                    # Cleanup utilities
 ├── flag_data.py                  # Country flags data
-├── requirements.txt              # Python dependencies (including FakeXYZ)
+├── requirements.txt              # Python dependencies 
 └── README.md                     # Documentation
 ```
 
